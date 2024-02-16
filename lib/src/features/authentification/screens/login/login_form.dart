@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jobasheet/src/features/authentification/firebaseauthservices/firebase_auth_services.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/widgets/dashboard.dart';
-import 'package:jobasheet/src/firebase_auth_implementation/firebase_auth_services.dart';
 import '../forget_password/forget_password_option/forget_password_model_bottom_sheet.dart';
 
 class LoginForm extends StatefulWidget {
@@ -126,6 +126,7 @@ class _LoginFormState extends State<LoginForm> {
 
     User? user = await _auth.singInWithEmailAndPassword(email, password);
     //checking conditions
+    FocusScope.of(context).unfocus();
 
     if (user != null) {
       showDialog(
@@ -156,18 +157,14 @@ class _LoginFormState extends State<LoginForm> {
         context: context,
         builder: (context) {
           return AlertDialog(
-              title: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "Some error occured try again later!",
-                  style: TextStyle(color: Colors.red),
-                ),
+            title: Align(
+              alignment: Alignment.center,
+              child: Text(
+                "Some error occured try again later!",
+                style: TextStyle(color: Colors.red),
               ),
-              content: Image.asset(
-                "assets/images/warning.png",
-                width: 70,
-                height: 70,
-              ));
+            ),
+          );
         },
       );
     }

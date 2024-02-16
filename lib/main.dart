@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       title: 'jobasheet',
       theme: JAppTheme.LightTheme,
       darkTheme: JAppTheme.darkTheme,
-      home: const WelcomeScreen(),
+      home: WelcomeScreen(),
     );
   }
 }

@@ -27,6 +27,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                   subTitle: jSingUpSubTitle,
                   title: jSingUpTitle,
                 ),
+                CircleAvatar(),
                 SingUpForm(),
                 SingUpFooterWidget(),
               ],

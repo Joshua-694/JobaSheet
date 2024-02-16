@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jobasheet/src/features/authentification/firebaseauthservices/firebase_auth_services.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/widgets/dashboard.dart';
-import 'package:jobasheet/src/firebase_auth_implementation/firebase_auth_services.dart';
 
 class SingUpForm extends StatefulWidget {
   const SingUpForm({
@@ -135,48 +135,19 @@ class _SingUpFormState extends State<SingUpForm> {
   }
 
   void singUp() async {
+    //String name = _usernamecontroller.text;
     String email = _emailcontroller.text;
     String password = _passwordcontroller.text;
 
-    User? user = await _auth.singUpWithEmailAndPassword(email, password);
-    //checking conditions
+    User? user = await _auth.singupWithEmailAndPassword(email, password);
 
     if (user != null) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("User is successfuly created",
-                style: TextStyle(color: Colors.green)),
-            content: Image(
-              image: AssetImage("assets/images/check.png"),
-              width: 70,
-              height: 70,
-            ),
-          );
-        },
-      );
+      print("User is successfuly created");
       Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()),
-      );
+          context, MaterialPageRoute(builder: (context) => DashboardScreen()));
     } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(
-              "Some error occured please try again later!",
-              style: TextStyle(color: Colors.red),
-            ),
-            content: Image.asset(
-              "assets/images/warning.png",
-              width: 70,
-              height: 70,
-            ),
-          );
-        },
-      );
+      print("Some error occured");
     }
+    ;
   }
 }

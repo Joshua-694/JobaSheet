@@ -1,3 +1,4 @@
+import 'package:card_swiper/card_swiper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jobasheet/src/features/authentification/screens/welcomescreen/welcome_screen.dart';
@@ -18,6 +19,11 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final List<String> _swiper = [
+    "assets/images/lady.jpg",
+    "assets/images/builder.jpg",
+    "assets/images/worker.jpg",
+  ];
   List imgData = [
     "assets/images/documents.png",
     "assets/images/project.png",
@@ -38,15 +44,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-          title: Text(
-            "Jobasheet",
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          centerTitle: true,
-          elevation: 0,
-          backgroundColor: Colors.transparent),
+        title: Text(
+          "Jobasheet",
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
       drawer: Drawer(
         backgroundColor: Colors.black,
         child: ListView(
@@ -148,123 +153,133 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: SafeArea(
         child: Container(
-          color: Colors.black,
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
               Container(
+                child: Swiper(
+                  autoplay: true,
+                  pagination: SwiperPagination(
+                    alignment: Alignment.bottomCenter,
+                    builder: DotSwiperPaginationBuilder(
+                        color: Colors.white, activeColor: Colors.black),
+                  ),
+                  itemCount: _swiper.length,
+                  itemBuilder: (context, index) => Image.asset(
+                    _swiper[index],
+                    fit: BoxFit.fill,
+                  ),
+                ),
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.1,
+                height: MediaQuery.of(context).size.height * 0.25,
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ),
               Expanded(
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(50),
-                        topRight: Radius.circular(50)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 1.1,
-                          mainAxisSpacing: 25),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: imgData.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            switch (index) {
-                              case 0:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Documents(),
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: GridView.builder(
+                        scrollDirection: Axis.vertical,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.1,
+                            mainAxisSpacing: 25),
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: imgData.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              switch (index) {
+                                case 0:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Documents(),
+                                    ),
+                                  );
+                                  break;
+                                case 1:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Projects(),
+                                    ),
+                                  );
+                                  break;
+                                case 2:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TeamLeads(),
+                                    ),
+                                  );
+                                  break;
+                                case 3:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Finance(),
+                                    ),
+                                  );
+                                  break;
+                                case 4:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Inspections(),
+                                    ),
+                                  );
+                                  break;
+                                case 5:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Reports(),
+                                    ),
+                                  );
+                                  break;
+                              }
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 20),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
                                   ),
-                                );
-                                break;
-                              case 1:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Projects(),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset(imgData[index], width: 100),
+                                  Text(
+                                    titles[index],
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
                                   ),
-                                );
-                                break;
-                              case 2:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TeamLeads(),
-                                  ),
-                                );
-                                break;
-                              case 3:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Finance(),
-                                  ),
-                                );
-                                break;
-                              case 4:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Inspections(),
-                                  ),
-                                );
-                                break;
-                              case 5:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Reports(),
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                          child: Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 20),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 6,
-                                  spreadRadius: 1,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Image.asset(imgData[index], width: 100),
-                                Text(
-                                  titles[index],
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
