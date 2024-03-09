@@ -20,17 +20,6 @@ class _LoginFooterWidgetState extends State<LoginFooterWidget> {
       children: [
         Text("OR"),
         SizedBox(height: 12),
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(),
-              side: BorderSide(color: Colors.black)),
-          onPressed: () {},
-          icon: Image(
-            image: AssetImage("assets/images/google.png"),
-            width: 20.0,
-          ),
-          label: Text('Sing in with Google'),
-        ),
         SizedBox(height: 12),
         TextButton(
           onPressed: () {
@@ -39,7 +28,7 @@ class _LoginFooterWidgetState extends State<LoginFooterWidget> {
           child: Text.rich(
             TextSpan(
               text: jAlready,
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyLarge,
               children: [
                 TextSpan(
                   text: 'SingUp',

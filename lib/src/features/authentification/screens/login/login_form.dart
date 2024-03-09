@@ -95,7 +95,7 @@ class _LoginFormState extends State<LoginForm> {
                     shape: RoundedRectangleBorder(),
                     side: BorderSide(color: Colors.black)),
                 onPressed: () {
-                  singIn();
+                  signIn();
                   _formKey.currentState?.validate();
                 },
                 child: Text('Login'.toUpperCase()),
@@ -120,53 +120,55 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  void singIn() async {
-    String email = _emailcontroller.text.trim();
-    String password = _passwordcontroller.text.trim();
+  void signIn() async {
+    String email = _emailcontroller.text;
+    String password = _passwordcontroller.text;
 
-    User? user = await _auth.singInWithEmailAndPassword(email, password);
-    //checking conditions
-    FocusScope.of(context).unfocus();
-
-    if (user != null) {
+    try {
+      // Show loading indicator while fetching data
       showDialog(
         context: context,
+        barrierDismissible: false, // Prevent users from closing the dialog
         builder: (context) {
           return AlertDialog(
-            title: Text(
-              "Successfuly singed in",
-              style:
-                  TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-            ),
-            content: Image(
-              image: AssetImage(
-                "assets/images/check.png",
-              ),
-              width: 70,
-              height: 70,
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Signing In..."),
+              ],
             ),
           );
         },
       );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Align(
-              alignment: Alignment.center,
-              child: Text(
-                "Some error occured try again later!",
-                style: TextStyle(color: Colors.red),
-              ),
+
+      // Checking conditions
+      FocusScope.of(context).unfocus();
+
+      if (email.isEmpty || password.isEmpty) {
+        throw ("Please enter both email and password.");
+      }
+
+      User? user = await _auth.singInWithEmailAndPassword(email, password);
+
+      // Dismiss the loading indicator
+      Navigator.pop(context);
+
+      if (user != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DashboardScreen(
+              username: '',
             ),
-          );
-        },
-      );
+          ),
+        );
+      } else {
+        throw ("Invalid email or password. Please try again.");
+      }
+    } catch (error) {
+      // Handle errors here
+      print("Error: $error");
     }
   }
 }

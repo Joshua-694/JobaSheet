@@ -18,8 +18,8 @@ class LoginHeaderWidget extends StatelessWidget {
           image: AssetImage(jLoginImage),
           height: size.height * 0.3,
         ),
-        Text(jLoginTitle, style: Theme.of(context).textTheme.headline2),
-        Text(jLoginSubTitle, style: Theme.of(context).textTheme.bodyText2),
+        Text(jLoginTitle, style: Theme.of(context).textTheme.displayMedium),
+        Text(jLoginSubTitle, style: Theme.of(context).textTheme.bodyMedium),
       ],
     );
   }

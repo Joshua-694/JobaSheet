@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "245732343045",
+    "project_id": "jobasheet-e020b",
+    "storage_bucket": "jobasheet-e020b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245732343045:android:0381746c2aeb9cfb4b4b6c",
+        "android_client_info": {
+          "package_name": "com.example.jobasheet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrzTk58wGvlvBuw2gVf5lS16fkeP3TsZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

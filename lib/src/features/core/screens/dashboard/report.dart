@@ -1,29 +1,79 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
+import "package:flutter_email_sender/flutter_email_sender.dart";
 
-class Reports extends StatefulWidget {
-  const Reports({super.key});
+class ReportScreen extends StatefulWidget {
+  const ReportScreen({super.key});
 
   @override
-  State<Reports> createState() => _ReportsState();
+  State<ReportScreen> createState() => _ReportScreenState();
 }
 
-class _ReportsState extends State<Reports> {
+class _ReportScreenState extends State<ReportScreen> {
+  final _key = GlobalKey<FormState>();
+  TextEditingController email = TextEditingController();
+  TextEditingController subject = TextEditingController();
+  TextEditingController body = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    email.dispose();
+    subject.dispose();
+    body.dispose();
+  }
+
+  sendEmail(String subject, String body, String recipientemail) async {
+    final Email email = Email(
+      body: body,
+      subject: subject,
+      recipients: [recipientemail],
+      isHTML: false,
+    );
+    await FlutterEmailSender.send(email);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        bottomNavigationBar: CurvedNavigationBar(
-            animationDuration: Duration(milliseconds: 300),
-            color: Colors.black,
-            backgroundColor: Colors.white,
-            items: [
-              Icon(Icons.macro_off),
-              Icon(Icons.plumbing),
-              Icon(Icons.stream),
-              Icon(Icons.co2)
-            ]),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Send an Email"),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(8),
+        child: Form(
+          key: _key,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: email,
+                decoration: InputDecoration(hintText: "Enter E-mail"),
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: subject,
+                decoration: InputDecoration(hintText: "Enter Subject"),
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: body,
+                decoration: InputDecoration(hintText: "Body"),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                  onPressed: () {
+                    _key.currentState!.validate();
+                    print("${email.text}");
+                    sendEmail(
+                      subject.text,
+                      body.text,
+                      email.text,
+                    );
+                  },
+                  child: Text("Send Email"))
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,7 +28,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -43,40 +49,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBgnlk0XuprNMlw7aNknxa7DpHsHATbHPo',
-    appId: '1:783339653491:web:842abb70fcb8fd1b89dd06',
-    messagingSenderId: '783339653491',
-    projectId: 'jobasheet-1cccb',
-    authDomain: 'jobasheet-1cccb.firebaseapp.com',
-    storageBucket: 'jobasheet-1cccb.appspot.com',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDuEOE2RaxfZ6_BZZLW3gjsDqvNVRSzcZQ',
-    appId: '1:783339653491:android:d5d166217955d69989dd06',
-    messagingSenderId: '783339653491',
-    projectId: 'jobasheet-1cccb',
-    storageBucket: 'jobasheet-1cccb.appspot.com',
+    apiKey: 'AIzaSyDrzTk58wGvlvBuw2gVf5lS16fkeP3TsZk',
+    appId: '1:245732343045:android:0381746c2aeb9cfb4b4b6c',
+    messagingSenderId: '245732343045',
+    projectId: 'jobasheet-e020b',
+    storageBucket: 'jobasheet-e020b.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCrsXIFYGre_Vg7jruqwQ6rU5Jyzpcznzs',
-    appId: '1:783339653491:ios:536042134a90ee3789dd06',
-    messagingSenderId: '783339653491',
-    projectId: 'jobasheet-1cccb',
-    storageBucket: 'jobasheet-1cccb.appspot.com',
-    iosClientId: '783339653491-agbit0pp38j0fdevseq0961m1bp5jsdu.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAfPi0Bd5L8CMNOOfi-UXFMiM0ymxGZjGc',
+    appId: '1:245732343045:ios:d06ef58206a4e5f74b4b6c',
+    messagingSenderId: '245732343045',
+    projectId: 'jobasheet-e020b',
+    storageBucket: 'jobasheet-e020b.appspot.com',
     iosBundleId: 'com.example.jobasheet',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCrsXIFYGre_Vg7jruqwQ6rU5Jyzpcznzs',
-    appId: '1:783339653491:ios:671ff223058c111189dd06',
-    messagingSenderId: '783339653491',
-    projectId: 'jobasheet-1cccb',
-    storageBucket: 'jobasheet-1cccb.appspot.com',
-    iosClientId: '783339653491-13f9deq7ltqc0pvvv7lmg1h92v62sk35.apps.googleusercontent.com',
-    iosBundleId: 'com.example.jobasheet.RunnerTests',
   );
 }

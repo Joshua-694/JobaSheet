@@ -1,4 +1,3 @@
-import 'package:card_swiper/card_swiper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jobasheet/src/features/authentification/screens/welcomescreen/welcome_screen.dart';
@@ -7,47 +6,44 @@ import 'package:jobasheet/src/features/core/screens/dashboard/financials.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/inspections.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/projects.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/report.dart';
-import 'package:jobasheet/src/features/core/screens/dashboard/team_leads.dart';
-
+import 'package:jobasheet/src/features/core/screens/dashboard/materials.dart';
 import 'package:jobasheet/src/features/core/screens/drawer_pages/people_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  DashboardScreen({super.key});
-
+  DashboardScreen({Key? key, required this.username});
+  final String username;
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final List<String> _swiper = [
-    "assets/images/lady.jpg",
-    "assets/images/builder.jpg",
-    "assets/images/worker.jpg",
-  ];
   List imgData = [
     "assets/images/documents.png",
     "assets/images/project.png",
-    "assets/images/teamleads.png",
+    "assets/images/materials.png",
     "assets/images/Finance.png",
     "assets/images/project-manager.png",
     "assets/images/goals.png",
   ];
 
   List titles = [
-    "Documents",
+    "Notes",
     "Projects",
-    "Team Leads",
+    "Materials",
     "Financials",
     "Inspections",
     "Reports",
   ];
+
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Jobasheet",
-          style: Theme.of(context).textTheme.headlineMedium,
+          "Welcome ${widget.username}",
+          style: Theme.of(context).textTheme.headline6,
         ),
         centerTitle: true,
         elevation: 0,
@@ -91,7 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ListTile(
               leading: Icon(Icons.document_scanner),
               title: Text(
-                "Documents",
+                "Notes",
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -147,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               leading: Icon(Icons.logout_outlined, color: Colors.red),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
           ],
         ),
       ),
@@ -157,129 +153,107 @@ class _DashboardScreenState extends State<DashboardScreen> {
           width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
-              Container(
-                child: Swiper(
-                  autoplay: true,
-                  pagination: SwiperPagination(
-                    alignment: Alignment.bottomCenter,
-                    builder: DotSwiperPaginationBuilder(
-                        color: Colors.white, activeColor: Colors.black),
-                  ),
-                  itemCount: _swiper.length,
-                  itemBuilder: (context, index) => Image.asset(
-                    _swiper[index],
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.25,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                ),
-              ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: GridView.builder(
-                        scrollDirection: Axis.vertical,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.1,
-                            mainAxisSpacing: 25),
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: imgData.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              switch (index) {
-                                case 0:
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Documents(),
-                                    ),
-                                  );
-                                  break;
-                                case 1:
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Projects(),
-                                    ),
-                                  );
-                                  break;
-                                case 2:
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => TeamLeads(),
-                                    ),
-                                  );
-                                  break;
-                                case 3:
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Finance(),
-                                    ),
-                                  );
-                                  break;
-                                case 4:
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Inspections(),
-                                    ),
-                                  );
-                                  break;
-                                case 5:
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Reports(),
-                                    ),
-                                  );
-                                  break;
-                              }
-                            },
-                            child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 20),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 6,
-                                    spreadRadius: 1,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15),
+                    child: GridView.builder(
+                      scrollDirection: Axis.vertical,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 1.1,
+                          mainAxisSpacing: 20),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: imgData.length,
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {
+                            switch (index) {
+                              case 0:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomePage(),
                                   ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Image.asset(imgData[index], width: 100),
-                                  Text(
-                                    titles[index],
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
+                                );
+                                break;
+                              case 1:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CurrentProjects(),
                                   ),
-                                ],
-                              ),
+                                );
+                                break;
+                              case 2:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        MaterialManagementSystem(),
+                                  ),
+                                );
+                                break;
+                              case 3:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MassPaymentScreen(),
+                                  ),
+                                );
+                                break;
+                              case 4:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InspectionForm(),
+                                  ),
+                                );
+                                break;
+                              case 5:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ReportScreen(),
+                                  ),
+                                );
+                                break;
+                            }
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  blurRadius: 6,
+                                  spreadRadius: 1,
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Image.asset(imgData[index], width: 100),
+                                Text(
+                                  titles[index],
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -287,6 +261,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+
+          switch (index) {
+            case 0:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MassPaymentScreen(),
+                ),
+              );
+              break;
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InspectionForm(),
+                ),
+              );
+              break;
+          }
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.description),
+            label: 'Notes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.attach_money),
+            label: 'Financials',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.build),
+            label: 'Inspections',
+          ),
+        ],
       ),
     );
   }

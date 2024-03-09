@@ -19,11 +19,11 @@ class ForgetPasswordScreen {
             Text(
               jForgetPasswordTitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headline2,
+              style: Theme.of(context).textTheme.displayMedium,
             ),
             Text(
               jForgetPasswordSubTitle,
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             SizedBox(height: 20),
             ForgetPasswordBtnWidget(
