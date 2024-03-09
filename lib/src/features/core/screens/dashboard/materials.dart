@@ -213,5 +213,5 @@ class MaterialItem {
 class Project {
   String name;
 
-  Project({required this.name});
+  Project({required this.name, required String id, required List<dynamic> workers});
 }

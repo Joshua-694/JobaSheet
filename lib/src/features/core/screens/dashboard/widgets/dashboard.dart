@@ -201,7 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MassPaymentScreen(),
+                                    builder: (context) => HomeScreen(),
                                   ),
                                 );
                                 break;
@@ -282,7 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MassPaymentScreen(),
+                  builder: (context) => HomeScreen(),
                 ),
               );
               break;
