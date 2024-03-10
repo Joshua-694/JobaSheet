@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jobasheet/src/features/authentification/firebaseauthservices/firebase_auth_services.dart';
-import 'package:jobasheet/src/features/core/screens/dashboard/widgets/dashboard.dart';
+import 'package:jobasheet/src/features/core/screens/dashboard/dashboard.dart';
 
 class SingUpForm extends StatefulWidget {
   const SingUpForm({

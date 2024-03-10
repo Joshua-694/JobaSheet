@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class FirestoreService {
   final CollectionReference projectsCollection =
@@ -52,10 +52,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController workerNameController = TextEditingController();
   final TextEditingController workerRoleController = TextEditingController();
   final TextEditingController workerAmountController = TextEditingController();
+  final TextEditingController pinController = TextEditingController();
 
   List<Map<String, dynamic>> projects = [];
   bool paymentSuccess = false;
@@ -134,8 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? selectedProject;
 
-// ...
-
   void payWorkers() async {
     if (selectedProject != null) {
       List<Map<String, dynamic>> projectList = projects
@@ -147,57 +147,60 @@ class _HomeScreenState extends State<HomeScreen> {
         List<Map<String, dynamic>> paidWorkers =
             await _firestoreService.payWorkers(selectedProject!);
 
-        // Compute the total amount paid
         double totalAmountPaid = paidWorkers
             .map<double>((worker) => worker['amount'] as double)
             .fold(0, (previous, current) => previous + current);
 
-        // Show the list of paid workers with an AlertDialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Paid Workers - ${project['name']}'),
-              content: IntrinsicHeight(
+              title: Text(
+                  'Enter your WALLET PIN to send KSH $totalAmountPaid to Your list of workers. Charges: KSH 0.'),
+              content: Form(
+                key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...paidWorkers.map(
-                      (worker) => ListTile(
-                        title: Text('Name: ${worker['name']}'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Amount: ${worker['amount']}'),
-                          ],
-                        ),
-                      ),
+                    TextFormField(
+                      validator: (value) {
+                        if (value!.length != 4) {
+                          // Check for exactly 4 characters
+                          return "Enter a 4-digit PIN";
+                        } else {
+                          return null;
+                        }
+                      },
+                      keyboardType: TextInputType.number,
+                      controller: pinController,
+                      obscureText: true,
+                      decoration: InputDecoration(labelText: 'Enter PIN'),
                     ),
-                    SizedBox(height: 10),
-                    Divider(),
-                    SizedBox(height: 10),
-                    Text(
-                      'Total Amount Paid: $totalAmountPaid',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              // Check form validity
+                              Navigator.of(context).pop();
+                              showSuccessMessage(project, totalAmountPaid);
+                            }
+                          },
+                          child: Text('Send'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    setState(() {
-                      paymentSuccess = true;
-                    });
-                    // Show the successful message AlertDialog
-                    showSuccessMessage();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
             );
           },
         );
@@ -223,7 +226,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void showSuccessMessage() {
+  void showSuccessMessage(
+      Map<String, dynamic> project, double totalAmountPaid) async {
+    List<Map<String, dynamic>> paidWorkers =
+        await _firestoreService.payWorkers(selectedProject!);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -232,9 +239,43 @@ class _HomeScreenState extends State<HomeScreen> {
             'Payment Successful',
             style: TextStyle(color: Colors.green),
           ),
-          content: Text(
-            'Workers can check their accounts after 24 hours',
-            style: TextStyle(color: Colors.green),
+          content: Column(
+            children: [
+              Text(
+                'Workers can check their accounts after 24 hours',
+                style: TextStyle(color: Colors.green),
+              ),
+              SizedBox(height: 10),
+              Divider(),
+              SizedBox(height: 10),
+              Text(
+                'Project Name: ${project['name']}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Total Amount Paid: $totalAmountPaid KSH',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'List of Paid Workers',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5),
+              // Display the list of paid workers
+              for (var worker in paidWorkers)
+                ListTile(
+                  title: Text(
+                      'Name: ${worker['name']}, Amount: ${worker['amount']} KSH'),
+                ),
+            ],
           ),
           actions: [
             ElevatedButton(
@@ -251,5 +292,4 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-// ...
 }

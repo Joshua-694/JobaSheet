@@ -4,9 +4,9 @@ import 'package:jobasheet/src/features/authentification/screens/welcomescreen/we
 import 'package:jobasheet/src/features/core/screens/dashboard/documents.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/financials.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/inspections.dart';
+import 'package:jobasheet/src/features/core/screens/dashboard/materials.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/projects.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/report.dart';
-import 'package:jobasheet/src/features/core/screens/dashboard/materials.dart';
 import 'package:jobasheet/src/features/core/screens/drawer_pages/people_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -192,8 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        MaterialManagementSystem(),
+                                    builder: (context) => Materials(),
                                   ),
                                 );
                                 break;

@@ -1,13 +1,48 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:jobasheet/src/features/authentification/firebaseauthservices/firebase_auth_services.dart';
-import 'package:jobasheet/src/features/core/screens/dashboard/widgets/dashboard.dart';
-import '../forget_password/forget_password_option/forget_password_model_bottom_sheet.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jobasheet/src/features/authentification/screens/forget_password/forget_password_option/forget_password_model_bottom_sheet.dart';
+import 'package:jobasheet/src/features/core/screens/dashboard/dashboard.dart';
+
+class FirebaseAuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } catch (error) {
+      print("Error signing in: $error");
+      throw "Error signing in. Please try again.";
+    }
+  }
+
+  Future<String> fetchUsernameFromDatabase(String uid) async {
+    try {
+      DocumentSnapshot userSnapshot =
+          await _firestore.collection('users').doc(uid).get();
+
+      if (userSnapshot.exists) {
+        // Assuming you have a 'username' field in your user document
+        String username = userSnapshot['username'];
+        return username;
+      } else {
+        throw "User document not found in the database.";
+      }
+    } catch (error) {
+      print("Error fetching username: $error");
+      throw "Error fetching username from the database.";
+    }
+  }
+}
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({
-    super.key,
-  });
+  const LoginForm({Key? key}) : super(key: key);
 
   @override
   State<LoginForm> createState() => _LoginFormState();
@@ -15,21 +50,17 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final FirebaseAuthService _auth = FirebaseAuthService();
-
   final _formKey = GlobalKey<FormState>();
-  //controllers
-  TextEditingController _emailcontroller = TextEditingController();
-  TextEditingController _passwordcontroller = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  bool _isSecurePassword = true;
 
   @override
   void dispose() {
-    _passwordcontroller.dispose();
-    _emailcontroller.dispose();
-
+    _passwordController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
-
-  bool _isSecurePassword = true;
 
   Widget build(BuildContext context) {
     return Form(
@@ -52,7 +83,7 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 }
               },
-              controller: _emailcontroller,
+              controller: _emailController,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.person_outline_rounded),
@@ -70,7 +101,7 @@ class _LoginFormState extends State<LoginForm> {
                 }
               },
               obscureText: _isSecurePassword,
-              controller: _passwordcontroller,
+              controller: _passwordController,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 suffixIcon: togglePassword(),
@@ -92,8 +123,9 @@ class _LoginFormState extends State<LoginForm> {
               alignment: Alignment.center,
               child: ElevatedButton(
                 style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(),
-                    side: BorderSide(color: Colors.black)),
+                  shape: RoundedRectangleBorder(),
+                  side: BorderSide(color: Colors.black),
+                ),
                 onPressed: () {
                   signIn();
                   _formKey.currentState?.validate();
@@ -121,8 +153,8 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void signIn() async {
-    String email = _emailcontroller.text;
-    String password = _passwordcontroller.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
     try {
       // Show loading indicator while fetching data
@@ -149,20 +181,27 @@ class _LoginFormState extends State<LoginForm> {
         throw ("Please enter both email and password.");
       }
 
-      User? user = await _auth.singInWithEmailAndPassword(email, password);
+      User? user = await _auth.signInWithEmailAndPassword(email, password);
 
       // Dismiss the loading indicator
       Navigator.pop(context);
 
       if (user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DashboardScreen(
-              username: '',
+        try {
+          String username = await _auth.fetchUsernameFromDatabase(user.uid);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DashboardScreen(
+                username: username,
+              ),
             ),
-          ),
-        );
+          );
+        } catch (error) {
+          print("Error: $error");
+          // Handle error fetching username
+        }
       } else {
         throw ("Invalid email or password. Please try again.");
       }
