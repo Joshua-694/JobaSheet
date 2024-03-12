@@ -195,6 +195,7 @@ class _LoginFormState extends State<LoginForm> {
             MaterialPageRoute(
               builder: (context) => DashboardScreen(
                 username: username,
+                email: email,
               ),
             ),
           );

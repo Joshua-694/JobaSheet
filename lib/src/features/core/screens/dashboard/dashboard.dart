@@ -7,11 +7,12 @@ import 'package:jobasheet/src/features/core/screens/dashboard/inspections.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/materials.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/projects.dart';
 import 'package:jobasheet/src/features/core/screens/dashboard/report.dart';
-import 'package:jobasheet/src/features/core/screens/drawer_pages/people_screen.dart';
+import 'package:jobasheet/src/features/core/screens/drawer_pages/settingsandsupport.dart';
 
 class DashboardScreen extends StatefulWidget {
-  DashboardScreen({Key? key, required this.username});
+  DashboardScreen({Key? key, required this.username, required this.email});
   final String username;
+  final String email;
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
@@ -43,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: Text(
           "Welcome ${widget.username}",
-          style: Theme.of(context).textTheme.headline6,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         centerTitle: true,
         elevation: 0,
@@ -58,57 +59,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 decoration: BoxDecoration(
                   color: Colors.black,
                 ),
-                accountName: Text("Joshua"),
-                accountEmail: Text("onyangojoshua694@gmail.com"),
-                currentAccountPictureSize: Size.square(50),
+                accountName: Text(widget.username),
+                accountEmail: Text(widget.email),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.black,
                   child: Icon(Icons.person_2_outlined),
                 ),
               ),
             ),
+            SizedBox(height: 10),
             ListTile(
-              leading: Icon(Icons.people),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MaterialUsageTracker()));
+              },
+              leading: Icon(Icons.document_scanner),
               title: Text(
-                "People",
+                "Materials",
                 style: TextStyle(color: Colors.white),
               ),
+            ),
+            SizedBox(height: 10),
+            ListTile(
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => CurrentProjects()));
+              },
+              leading: Icon(Icons.manage_accounts),
+              title: Text(
+                "Projects",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 10),
+            ListTile(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ReportScreen()));
+              },
+              leading: Icon(Icons.email),
+              title: Text(
+                "Reports",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 10),
+            ListTile(
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PeopleScreen(),
+                    builder: (context) => SettingsSupportPage(),
                   ),
                 );
               },
-            ),
-            SizedBox(height: 10),
-            ListTile(
-              leading: Icon(Icons.document_scanner),
-              title: Text(
-                "Notes",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 10),
-            ListTile(
-              leading: Icon(Icons.manage_accounts),
-              title: Text(
-                "Project Management",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 10),
-            ListTile(
-              leading: Icon(Icons.money),
-              title: Text(
-                "Financial",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 10),
-            ListTile(
               leading: Icon(Icons.settings),
               title: Text(
                 "Settings and Support",
@@ -116,13 +122,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             SizedBox(height: 10),
-            ListTile(
-              title: Text(
-                "Update Profile",
-                style: TextStyle(color: Colors.white),
-              ),
-              leading: Icon(Icons.person_2_sharp),
-            ),
             Divider(),
             SizedBox(height: 10),
             ListTile(
@@ -151,113 +150,118 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: GridView.builder(
-                      scrollDirection: Axis.vertical,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 1.1,
-                          mainAxisSpacing: 20),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: imgData.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            switch (index) {
-                              case 0:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomePage(),
-                                  ),
-                                );
-                                break;
-                              case 1:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CurrentProjects(),
-                                  ),
-                                );
-                                break;
-                              case 2:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Materials(),
-                                  ),
-                                );
-                                break;
-                              case 3:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomeScreen(),
-                                  ),
-                                );
-                                break;
-                              case 4:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InspectionForm(),
-                                  ),
-                                );
-                                break;
-                              case 5:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ReportScreen(),
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                          child: Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 20),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  blurRadius: 6,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Image.asset(imgData[index], width: 100),
-                                Text(
-                                  titles[index],
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: GridView.builder(
+                        scrollDirection: Axis.vertical,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.1,
+                            mainAxisSpacing: 20),
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: imgData.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              switch (index) {
+                                case 0:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => HomePage(),
+                                    ),
+                                  );
+                                  break;
+                                case 1:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CurrentProjects(),
+                                    ),
+                                  );
+                                  break;
+                                case 2:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MaterialUsageTracker(),
+                                    ),
+                                  );
+                                  break;
+                                case 3:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => HomeScreen(),
+                                    ),
+                                  );
+                                  break;
+                                case 4:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => InspectionForm(),
+                                    ),
+                                  );
+                                  break;
+                                case 5:
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ReportScreen(),
+                                    ),
+                                  );
+                                  break;
+                              }
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 20),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
                                     color: Colors.black,
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset(imgData[index], width: 100),
+                                  Text(
+                                    titles[index],
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

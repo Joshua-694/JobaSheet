@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 10),
               Text(
-                'Total Amount Paid: $totalAmountPaid KSH',
+                'Total Amount Paid: KSHS $totalAmountPaid',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -273,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
               for (var worker in paidWorkers)
                 ListTile(
                   title: Text(
-                      'Name: ${worker['name']}, Amount: ${worker['amount']} KSH'),
+                      'Name: ${worker['name']}, Amount: KSHS ${worker['amount']}'),
                 ),
             ],
           ),

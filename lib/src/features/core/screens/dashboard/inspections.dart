@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -157,7 +156,7 @@ class _InspectionFormState extends State<InspectionForm> {
     }
 
     final output = await getTemporaryDirectory();
-    final file = File("${output.path}/JobasheetInspectionReport.pdf");
+    final file = File("${output.path}/Jobasheet Inspection Report.pdf");
     await file.writeAsBytes(await pdf.save());
 
     // Open the generated PDF immediately after generating

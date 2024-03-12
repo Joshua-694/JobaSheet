@@ -23,7 +23,7 @@ class _SingUpFormState extends State<SingUpForm> {
   TextEditingController _passwordcontroller = TextEditingController();
   TextEditingController _confirmpasswordcontroller = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>(); // added _formKey
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -42,7 +42,7 @@ class _SingUpFormState extends State<SingUpForm> {
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 20),
             child: Form(
-              key: _formKey, // assigned _formKey to the Form widget
+              key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 children: [
@@ -166,6 +166,7 @@ class _SingUpFormState extends State<SingUpForm> {
 
         if (user != null) {
           String username = _usernamecontroller.text;
+          String email = _emailcontroller.text;
 
           // Store user details in Firestore
           await FirebaseFirestore.instance
@@ -178,9 +179,14 @@ class _SingUpFormState extends State<SingUpForm> {
           });
           Navigator.pop(context); // Close the CircularProgressIndicator dialog
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => DashboardScreen(username: username)));
+            context,
+            MaterialPageRoute(
+              builder: (context) => DashboardScreen(
+                username: username,
+                email: email,
+              ),
+            ),
+          );
         } else {
           Navigator.pop(context); // Close the CircularProgressIndicator dialog
 

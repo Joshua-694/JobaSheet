@@ -1,106 +1,228 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Materials extends StatefulWidget {
+class MaterialUsageTracker extends StatefulWidget {
   @override
-  _MaterialsState createState() => _MaterialsState();
+  _MaterialUsageTrackerState createState() => _MaterialUsageTrackerState();
 }
 
-class _MaterialsState extends State<Materials> {
-  final TextEditingController materialController = TextEditingController();
-  final TextEditingController valueController = TextEditingController();
+class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
+  // Material amounts entered by the contractor
+  double cementAmount = 0.0;
+  double fineAggregateAmount = 0.0;
+  double coarseAggregateAmount = 0.0;
+
+  // Controllers for text input
+  TextEditingController _cementController = TextEditingController();
+  TextEditingController _fineAggregateController = TextEditingController();
+  TextEditingController _coarseAggregateController = TextEditingController();
+  TextEditingController _initialCementController = TextEditingController();
+  TextEditingController _initialFineAggregateController =
+      TextEditingController();
+  TextEditingController _initialCoarseAggregateController =
+      TextEditingController();
+
+  // Function to update material amount for cement
+  void updateCementAmount() {
+    double usedAmount = double.tryParse(_cementController.text) ?? 0.0;
+    double initialAmount =
+        double.tryParse(_initialCementController.text) ?? 0.0;
+    if (usedAmount <= initialAmount) {
+      setState(() {
+        cementAmount = initialAmount - usedAmount;
+        _cementController.clear();
+        _initialCementController.text =
+            cementAmount.toString(); // Update initial amount for next usage
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(
+                'Used amount cannot be greater than the initial amount of Cement.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // Function to update material amount for fine aggregate
+  void updateFineAggregateAmount() {
+    double usedAmount = double.tryParse(_fineAggregateController.text) ?? 0.0;
+    double initialAmount =
+        double.tryParse(_initialFineAggregateController.text) ?? 0.0;
+    if (usedAmount <= initialAmount) {
+      setState(() {
+        fineAggregateAmount = initialAmount - usedAmount;
+        _fineAggregateController.clear();
+        _initialFineAggregateController.text = fineAggregateAmount
+            .toString(); // Update initial amount for next usage
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(
+                'Used amount cannot be greater than the initial amount of Fine Aggregate.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // Function to update material amount for coarse aggregate
+  void updateCoarseAggregateAmount() {
+    double usedAmount = double.tryParse(_coarseAggregateController.text) ?? 0.0;
+    double initialAmount =
+        double.tryParse(_initialCoarseAggregateController.text) ?? 0.0;
+    if (usedAmount <= initialAmount) {
+      setState(() {
+        coarseAggregateAmount = initialAmount - usedAmount;
+        _coarseAggregateController.clear();
+        _initialCoarseAggregateController.text = coarseAggregateAmount
+            .toString(); // Update initial amount for next usage
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(
+                'Used amount cannot be greater than the initial amount of Coarse Aggregate.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Material Tracker'),
+        title: Text('Material Usage Tracker'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: materialController,
-                    decoration: InputDecoration(labelText: 'Material Name'),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: valueController,
-                    decoration: InputDecoration(labelText: 'Material Value'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _addMaterial(
-                  materialController.text,
-                  double.tryParse(valueController.text) ?? 0,
-                );
-              },
-              child: Text('Add Material'),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Material Usage Data:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                future: _getMaterialUsageData(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (snapshot.data != null &&
-                      snapshot.data!.docs.isNotEmpty) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        final materialData = snapshot.data!.docs[index].data()!;
-                        return ListTile(
-                          title: Text(materialData['material']),
-                          subtitle: Text('Value: ${materialData['value']}'),
-                          trailing: Text('Date: ${materialData['date']}'),
-                        );
-                      },
-                    );
-                  } else {
-                    return Text("No material usage data available.");
-                  }
-                },
-              ),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildMaterialCard('Cement', cementAmount, _cementController,
+                  updateCementAmount, _initialCementController),
+              _buildMaterialCard(
+                  'Fine Aggregate',
+                  fineAggregateAmount,
+                  _fineAggregateController,
+                  updateFineAggregateAmount,
+                  _initialFineAggregateController),
+              _buildMaterialCard(
+                  'Coarse Aggregate',
+                  coarseAggregateAmount,
+                  _coarseAggregateController,
+                  updateCoarseAggregateAmount,
+                  _initialCoarseAggregateController),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Future<void> _addMaterial(String material, double value) async {
-    CollectionReference materials =
-        FirebaseFirestore.instance.collection('materials');
-    await materials.add({
-      'material': material,
-      'value': value,
-      'date': DateTime.now().toLocal().toString(),
-    });
-    materialController.clear();
-    valueController.clear();
-  }
-
-  Future<QuerySnapshot<Map<String, dynamic>>> _getMaterialUsageData() async {
-    CollectionReference materials =
-        FirebaseFirestore.instance.collection('materials');
-    return await materials.get() as QuerySnapshot<Map<String, dynamic>>;
+  Widget _buildMaterialCard(
+      String materialType,
+      double amount,
+      TextEditingController controller,
+      void Function() onPressed,
+      TextEditingController initialAmountController) {
+    return Card(
+      elevation: 3.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              materialType,
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.0),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Initial Amount:'),
+                      TextField(
+                        controller: initialAmountController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Initial Amount',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 16.0),
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Remaining Amount: $amount units'),
+                      SizedBox(height: 8.0),
+                      TextField(
+                        controller: controller,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Used Amount',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.0),
+            ElevatedButton(
+              onPressed: onPressed,
+              child: Text('Update Amount'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

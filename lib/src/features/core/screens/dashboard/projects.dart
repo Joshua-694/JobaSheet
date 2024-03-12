@@ -36,7 +36,7 @@ class FirestoreService {
       workers = snapshot.docs.map((doc) {
         return {
           'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
+          ...doc.data(),
         };
       }).toList();
     } catch (e) {
