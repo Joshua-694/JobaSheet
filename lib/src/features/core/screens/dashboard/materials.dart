@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MaterialUsageTracker extends StatefulWidget {
   @override
@@ -6,6 +7,8 @@ class MaterialUsageTracker extends StatefulWidget {
 }
 
 class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   // Material amounts entered by the contractor
   double cementAmount = 0.0;
   double fineAggregateAmount = 0.0;
@@ -21,8 +24,38 @@ class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
   TextEditingController _initialCoarseAggregateController =
       TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    // Load initial material amounts from Firestore
+    loadMaterialAmounts();
+  }
+
+  Future<void> loadMaterialAmounts() async {
+    try {
+      final snapshot =
+          await firestore.collection('materials').doc('amounts').get();
+      if (snapshot.exists) {
+        setState(() {
+          cementAmount = snapshot.data()?['cement'] ?? 0.0;
+          fineAggregateAmount = snapshot.data()?['fineAggregate'] ?? 0.0;
+          coarseAggregateAmount = snapshot.data()?['coarseAggregate'] ?? 0.0;
+        });
+      } else {
+        // If the document doesn't exist, initialize it with default values and store in Firestore
+        await firestore.collection('materials').doc('amounts').set({
+          'cement': cementAmount,
+          'fineAggregate': fineAggregateAmount,
+          'coarseAggregate': coarseAggregateAmount,
+        });
+      }
+    } catch (error) {
+      print('Error loading material amounts: $error');
+    }
+  }
+
   // Function to update material amount for cement
-  void updateCementAmount() {
+  void updateCementAmount() async {
     double usedAmount = double.tryParse(_cementController.text) ?? 0.0;
     double initialAmount =
         double.tryParse(_initialCementController.text) ?? 0.0;
@@ -33,6 +66,11 @@ class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
         _initialCementController.text =
             cementAmount.toString(); // Update initial amount for next usage
       });
+      // Update Firebase with the new data
+      await firestore
+          .collection('materials')
+          .doc('amounts')
+          .update({'cement': cementAmount});
     } else {
       showDialog(
         context: context,
@@ -56,7 +94,7 @@ class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
   }
 
   // Function to update material amount for fine aggregate
-  void updateFineAggregateAmount() {
+  void updateFineAggregateAmount() async {
     double usedAmount = double.tryParse(_fineAggregateController.text) ?? 0.0;
     double initialAmount =
         double.tryParse(_initialFineAggregateController.text) ?? 0.0;
@@ -67,6 +105,11 @@ class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
         _initialFineAggregateController.text = fineAggregateAmount
             .toString(); // Update initial amount for next usage
       });
+      // Update Firebase with the new data
+      await firestore
+          .collection('materials')
+          .doc('amounts')
+          .update({'fineAggregate': fineAggregateAmount});
     } else {
       showDialog(
         context: context,
@@ -90,7 +133,7 @@ class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
   }
 
   // Function to update material amount for coarse aggregate
-  void updateCoarseAggregateAmount() {
+  void updateCoarseAggregateAmount() async {
     double usedAmount = double.tryParse(_coarseAggregateController.text) ?? 0.0;
     double initialAmount =
         double.tryParse(_initialCoarseAggregateController.text) ?? 0.0;
@@ -101,6 +144,11 @@ class _MaterialUsageTrackerState extends State<MaterialUsageTracker> {
         _initialCoarseAggregateController.text = coarseAggregateAmount
             .toString(); // Update initial amount for next usage
       });
+      // Update Firebase with the new data
+      await firestore
+          .collection('materials')
+          .doc('amounts')
+          .update({'coarseAggregate': coarseAggregateAmount});
     } else {
       showDialog(
         context: context,
