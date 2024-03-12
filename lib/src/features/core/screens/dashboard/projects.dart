@@ -56,7 +56,7 @@ class CurrentProjects extends StatefulWidget {
 
 class _CurrentProjectsState extends State<CurrentProjects> {
   final FirestoreService _firestoreService = FirestoreService();
-  final TextEditingController projectOwnerController = TextEditingController();
+  final TextEditingController projectNameController = TextEditingController();
   final TextEditingController projectCostController = TextEditingController();
   final TextEditingController projectLocationController =
       TextEditingController();
@@ -66,44 +66,20 @@ class _CurrentProjectsState extends State<CurrentProjects> {
   final TextEditingController workerAmountController = TextEditingController();
 
   List<Map<String, dynamic>> projects = [];
-  List<Map<String, dynamic>> workers = [];
-  List<String> workerNames = [];
   String? selectedProject;
 
   @override
   void initState() {
     super.initState();
-    // Fetch projects data from Firestore when the widget is initialized
     _loadProjects();
   }
 
   Future<void> _loadProjects() async {
     _firestoreService.getProjects().listen((projectData) {
       setState(() {
-        // Update the projects list with the data from Firestore
         projects = projectData;
-        // Fetch worker names for the selected project
-        _fetchWorkerNames();
       });
     });
-  }
-
-  // Fetch worker names for the selected project
-  void _fetchWorkerNames() {
-    workerNames.clear();
-    if (selectedProject != null) {
-      for (var project in projects) {
-        if (project['name'] == selectedProject) {
-          // Check if workers exist for the project
-          if (project['workers'] != null) {
-            for (var worker in project['workers']) {
-              workerNames.add(worker['name']);
-            }
-          }
-          break;
-        }
-      }
-    }
   }
 
   @override
@@ -118,12 +94,6 @@ class _CurrentProjectsState extends State<CurrentProjects> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Create Project',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   _openCreateProjectDialog(context);
@@ -131,43 +101,43 @@ class _CurrentProjectsState extends State<CurrentProjects> {
                 child: Text('Add Project'),
               ),
               SizedBox(height: 20),
-              Center(
-                child: Text(
-                  'Add Worker to Project',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+              Text(
+                'Select Project',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
               DropdownButton<String>(
                 hint: Text('Select Project'),
                 value: selectedProject,
                 onChanged: (value) {
                   setState(() {
                     selectedProject = value;
-                    // Fetch worker names when project is selected
-                    _fetchWorkerNames();
                   });
                 },
-                items: projects.isEmpty
-                    ? []
-                    : projects.map((project) {
-                        return DropdownMenuItem<String>(
-                          value: project['name'],
-                          child: Text(project['name']),
-                        );
-                      }).toList(),
+                items: projects.map((project) {
+                  return DropdownMenuItem<String>(
+                    value: project['name'],
+                    child: Text(project['name']),
+                  );
+                }).toList(),
               ),
-              SizedBox(height: 15),
+              SizedBox(height: 20),
+              Text(
+                'Add Worker to Project',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: workerNameController,
                 decoration: InputDecoration(labelText: 'Worker Name'),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               TextFormField(
                 controller: workerRoleController,
                 decoration: InputDecoration(labelText: 'Worker Role'),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               TextFormField(
                 controller: workerAmountController,
                 decoration: InputDecoration(labelText: 'Amount Paid'),
@@ -176,12 +146,9 @@ class _CurrentProjectsState extends State<CurrentProjects> {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  addWorkerToProject();
+                  _addWorkerToProject();
                 },
-                child: Text(
-                  'Add Worker to the Project',
-                  textAlign: TextAlign.center,
-                ),
+                child: Text('Add Worker to Project'),
               ),
               SizedBox(height: 20),
               Center(
@@ -209,21 +176,38 @@ class _CurrentProjectsState extends State<CurrentProjects> {
                             Text(project['location'] ?? 'Unknown location')),
                         DataCell(Text(project['type'] ?? 'Unknown type')),
                         DataCell(
-                          SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children:
-                                  (project['workers'] as List<dynamic>? ?? [])
-                                      .map<Widget>((worker) {
-                                if (worker != null) {
-                                  return Text(
-                                    '${worker['name']} (${worker['role']}, \$${worker['amount']})',
+                          Container(
+                            height: 150,
+                            child: FutureBuilder<List<Map<String, dynamic>>>(
+                              future: _firestoreService
+                                  .getWorkersForProject(project['id']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasData) {
+                                  List<Widget> workerWidgets = [];
+                                  for (var worker in snapshot.data!) {
+                                    workerWidgets.add(
+                                      Text(
+                                        '${worker['name']} (${worker['role']}, \$${worker['amount']})',
+                                      ),
+                                    );
+                                  }
+                                  return SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: workerWidgets,
+                                    ),
                                   );
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
                                 } else {
-                                  return Text('Unknown');
+                                  return Text('No workers found');
                                 }
-                              }).toList(),
+                              },
                             ),
                           ),
                         ),
@@ -239,98 +223,53 @@ class _CurrentProjectsState extends State<CurrentProjects> {
     );
   }
 
-  void addProject() async {
-    setState(() async {
-      String projectName = projectOwnerController.text;
-      double projectCost = double.tryParse(projectCostController.text) ?? 0.0;
-      String projectLocation = projectLocationController.text;
-      String projectType = projectTypeController.text;
+  Future<void> _addProject() async {
+    String projectName = projectNameController.text;
+    double projectCost = double.tryParse(projectCostController.text) ?? 0.0;
+    String projectLocation = projectLocationController.text;
+    String projectType = projectTypeController.text;
 
-      if (projectName.isNotEmpty && projectCost > 0) {
-        Map<String, dynamic> projectData = {
-          'name': projectName,
-          'cost': projectCost,
-          'location': projectLocation,
-          'type': projectType,
-          'workers': [], // Initialize with an empty workers list
-        };
+    if (projectName.isNotEmpty && projectCost > 0) {
+      Map<String, dynamic> projectData = {
+        'name': projectName,
+        'cost': projectCost,
+        'location': projectLocation,
+        'type': projectType,
+        'workers': [], // Initialize with an empty workers list
+      };
 
-        await _firestoreService.addProject(projectData);
+      await _firestoreService.addProject(projectData);
 
-        // Fetch updated projects data from Firestore
-        _loadProjects();
+      // Fetch updated projects data from Firestore
+      _loadProjects();
 
-        projectOwnerController.clear();
-        projectCostController.clear();
-        projectLocationController.clear();
-        projectTypeController.clear();
-      } else {
-        // Show an error message or handle the case where project details are incomplete
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Please provide valid project details.'),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    });
+      projectNameController.clear();
+      projectCostController.clear();
+      projectLocationController.clear();
+      projectTypeController.clear();
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Please provide valid project details.'),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
-  void addWorkerToProject() async {
-    setState(() async {
-      for (var project in projects) {
-        if (project['name'] == selectedProject) {
-          if (!project['workers'].contains(workerNameController.text)) {
-            Map<String, dynamic> workerData = {
-              'name': workerNameController.text,
-              'role': workerRoleController.text,
-              'amount': double.tryParse(workerAmountController.text) ?? 0.0,
-            };
-
-            await _firestoreService.addWorkerToProject(
-                project['id'], workerData);
-
-            // Fetch updated worker names for the selected project
-            _fetchWorkerNames();
-
-            workerNameController.clear();
-            workerRoleController.clear();
-            workerAmountController.clear();
-            selectedProject = null;
-          } else {
-            // Show an error message or handle the case where the worker already exists
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Error'),
-                  content: Text('Worker already exists in the project.'),
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('OK'),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        }
-      }
-    });
+  Future<void> _addWorkerToProject() async {
+    // Implementation to add worker to selected project
   }
 
   void _openCreateProjectDialog(BuildContext context) {
@@ -343,8 +282,8 @@ class _CurrentProjectsState extends State<CurrentProjects> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                controller: projectOwnerController,
-                decoration: InputDecoration(labelText: 'Project Owner'),
+                controller: projectNameController,
+                decoration: InputDecoration(labelText: 'Project Name'),
               ),
               SizedBox(height: 15),
               TextFormField(
@@ -362,19 +301,12 @@ class _CurrentProjectsState extends State<CurrentProjects> {
                 controller: projectTypeController,
                 decoration: InputDecoration(labelText: 'Project Type'),
               ),
-              SizedBox(height: 15),
             ],
           ),
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                addProject();
+                _addProject();
                 Navigator.of(context).pop();
               },
               child: Text('Create Project'),
